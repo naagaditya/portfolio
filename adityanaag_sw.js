@@ -1,4 +1,4 @@
-let cacheName = 'v1';
+let cacheName = 'v2';
 
 
 // self.addEventListener('install', e => {
