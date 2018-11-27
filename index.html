@@ -21,6 +21,7 @@
 
     <!-- Custom styles for this template -->
     <link href="./pf_files/agency.min.css" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
 
   <style type="text/css">
   
@@ -338,5 +339,16 @@
     <script async defer src="https://apis.google.com/js/api.js"
       onload="this.onload=function(){};handleClientLoad()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+
+
+
+
+    <script>
+      navigator.serviceWorker.register('./adityanaag_sw.js').then(sw => {
+        console.log('sw registered');
+      }).catch(err => {
+        console.log('sw not registered, ', err);
+      });
     </script>
 </body></html>
