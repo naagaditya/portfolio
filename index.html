@@ -22,6 +22,7 @@
     <!-- Custom styles for this template -->
     <link href="./pf_files/agency.min.css" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
 
   <style type="text/css">
   
@@ -349,6 +350,50 @@
         console.log('sw registered');
       }).catch(err => {
         console.log('sw not registered, ', err);
+      });
+    </script>
+    <script>
+      var config = {
+        apiKey: "AIzaSyAvrk335zC58ke6x2dxPKlHzxnUyu_cqnI",
+        authDomain: "zapsubscribe-43d8e.firebaseapp.com",
+        databaseURL: "https://zapsubscribe-43d8e.firebaseio.com",
+        projectId: "zapsubscribe-43d8e",
+        storageBucket: "zapsubscribe-43d8e.appspot.com",
+        messagingSenderId: "720246550114"
+      };
+      firebase.initializeApp(config);
+
+      const messaging = firebase.messaging();
+
+      messaging
+        .requestPermission()
+        .then(function () {
+          console.log("Notification permission granted.");
+
+          // get the token in the form of promise
+          return messaging.getToken()
+        })
+        .then(function (token) {
+          // print the token on the HTML page
+          console.log("token is : " + token);
+          $.ajax({
+            url: "https://sh6dmy2rc2.execute-api.ap-south-1.amazonaws.com/production/",
+            type: "POST",
+            dataType: "json",
+            data: `{"messageId": "${token}"}`,
+            cache: false,
+            success: function (data) {
+              // Success message
+
+            },
+          })
+        })
+        .catch(function (err) {
+          console.log("Unable to get permission to notify.", err);
+        });
+
+      messaging.onMessage(function (payload) {
+        console.log("Message received. ", payload);
       });
     </script>
 </body></html>
