@@ -1,3 +1,4 @@
+
 $(function() {
 
   $("#contactForm input,#contactForm textarea").jqBootstrapValidation({
@@ -34,25 +35,44 @@ $('#name').focus(function() {
 });
 
 
-function initClient() {
-  var API_KEY = 'AIzaSyBQz3cW5OUX3bVuB1Vci6L-Gn0vTOtPFqM'; 
+// function initClient() {
+//   var API_KEY = 'AIzaSyBQz3cW5OUX3bVuB1Vci6L-Gn0vTOtPFqM'; 
 
-  var CLIENT_ID = '855395398771-37i8an4g3jldupv70smrh9t45oct0ul8.apps.googleusercontent.com'; 
+//   var CLIENT_ID = '855395398771-37i8an4g3jldupv70smrh9t45oct0ul8.apps.googleusercontent.com'; 
 
-  var SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+//   var SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
 
-  gapi.client.init({
-    'apiKey': API_KEY,
-    'clientId': CLIENT_ID,
-    'scope': SCOPE,
-    'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-  }).then(function() {
-  });
-}
+//   gapi.client.init({
+//     'apiKey': API_KEY,
+//     'clientId': CLIENT_ID,
+//     'scope': SCOPE,
+//     'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+//   }).then(function() {
+//   });
+// }
 
-function handleClientLoad() {
-  gapi.load('client:auth2', initClient);
-}
+// function handleClientLoad() {
+//   gapi.load('client:auth2', initClient);
+// }
+
+
+// var db;
+// window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+// var request = window.indexedDB.open("mailSyncDb", 1);
+// request.onerror = function (event) {
+//   console.log("error: ");
+// };
+
+// request.onsuccess = function (event) {
+//   db = request.result;
+//   console.log("success: " + db);
+// };
+
+// request.onupgradeneeded = function (event) {
+//   var db = event.target.result;
+//   var objectStore = db.createObjectStore("mailData", { keyPath: "id" });
+//   console.log('create object store');
+// }
 
 function sendMessage () {
   var name = $("input#name").val();
@@ -64,45 +84,65 @@ function sendMessage () {
   $this = $("#sendMessageButton");
   $this.prop("disabled", true); // Disable submit button until AJAX call is complete to prevent duplicate messages
 
-  $.ajax({
+  navigator.serviceWorker.controller.postMessage({
     url: "https://mir02dqvt2.execute-api.ap-south-1.amazonaws.com/User/",
-    type: "POST",
-    dataType: "json",
-    data: `{
-      "name": "${name}",
-      "phone": "${phone}",
-      "email": "${email}",
-      "message": "${message}"
-    }`,
-    cache: false,
-    success: function(data) {
-      // Success message
-      $('#success').html("<div class='alert alert-success'>");
-      $('#success > .alert-success').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
-        .append("</button>");
-      $('#success > .alert-success')
-        .append("<strong>Your message has been sent. </strong>");
-      $('#success > .alert-success')
-        .append('</div>');
-      //clear all fields
-      $('#contactForm').trigger("reset");
-    },
-    error: function() {
-      // Fail message
-      $('#success').html("<div class='alert alert-danger'>");
-      $('#success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
-        .append("</button>");
-      $('#success > .alert-danger').append($("<strong>").text("Sorry " + name + ", it seems that my mail server is not responding. Please try again later!"));
-      $('#success > .alert-danger').append('</div>');
-      //clear all fields
-      $('#contactForm').trigger("reset");
-    },
-    complete: function() {
-      setTimeout(function() {
-        $this.prop("disabled", false); // Re-enable submit button when AJAX call is complete
-      }, 1000);
-    }
+    data: `{"name": "${name}","phone": "${phone}","email": "${email}","message": "${message}"}`
+  }, [messageChannel.port2]);
+  navigator.serviceWorker.ready.then(function (swRegistration) {
+    return swRegistration.sync.register('sendMail');
   });
+  if (!navigator.onLine) {
+    
+    $('#syncMail').html('You are not online. Your message is queued and will be send when you are back online');
+  }
+  
+  // add data in indexed db
+  // var request = db.transaction(["mailData"], "readwrite")
+  //   .objectStore("mailData")
+  //   .add({
+  //     id: 1,
+  //     url: "https://mir02dqvt2.execute-api.ap-south-1.amazonaws.com/User/",
+  //     data: `{"name": "${name}","phone": "${phone}","email": "${email}","message": "${message}"}`
+  //   });
+
+  // request.onsuccess = function (event) {
+  //   console.log("added to your database.");
+  //   navigator.serviceWorker.ready.then(function (swRegistration) {
+  //     return swRegistration.sync.register('sendMail');
+  //   });
+  // };
+
+  // request.onerror = function (event) {
+  //   console.log("Unable to add  ");
+  // }
+  
+  
+  
+  // $.ajax({
+  //   url: "https://mir02dqvt2.execute-api.ap-south-1.amazonaws.com/User/",
+  //   type: "POST",
+  //   dataType: "json",
+  //   data: `{
+  //     "name": "${name}",
+  //     "phone": "${phone}",
+  //     "email": "${email}",
+  //     "message": "${message}"
+  //   }`,
+  //   cache: false,
+  //   success: sendMsgSuccess,
+  //   error: sendMsgFailure,
+  //   complete: sendMsgComplete
+  // });
+
+
+
+
+
+
+
+
+
+
   // var params = {
   //   spreadsheetId: '1Nm0wXEupghjnnvanMZPoo1QbRxtnfnTSGKcsImG0UKo',
   //   range: 'A1',  // TODO: Update placeholder value.
@@ -147,4 +187,46 @@ function sendMessage () {
   //   $this.prop("disabled", false);
   //   console.error('error: ' + reason.result.error.message);
   // });
+}
+
+
+var sendMsgSuccess = function () {
+  $('#success').html("<div class='alert alert-success'>");
+  $('#success > .alert-success').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
+    .append("</button>");
+  $('#success > .alert-success')
+    .append("<strong>Your message has been sent. </strong>");
+  $('#success > .alert-success')
+    .append('</div>');
+  //clear all fields
+  $('#contactForm').trigger("reset");
+}
+
+var sendMsgFailure = function () {
+  $('#success').html("<div class='alert alert-danger'>");
+  $('#success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
+    .append("</button>");
+  $('#success > .alert-danger').append($("<strong>").text("Sorry " + name + ", it seems that my mail server is not responding. Please try again later!"));
+  $('#success > .alert-danger').append('</div>');
+  //clear all fields
+  $('#contactForm').trigger("reset");
+}
+
+var sendMsgComplete = function () {
+  setTimeout(function () {
+    $this.prop("disabled", false); // Re-enable submit button when AJAX call is complete
+  }, 1000);
+}
+
+var messageChannel = new MessageChannel();
+messageChannel.port1.onmessage = function (event) {
+  console.log("Response the SW : ", event.data.message);
+  if (event.data.message == 'success') {
+    sendMsgSuccess();
+    sendMsgComplete();
+  }
+  else {
+    sendMsgFailure();
+    sendMsgComplete();
+  }
 }
