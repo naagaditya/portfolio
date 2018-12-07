@@ -213,6 +213,7 @@ var sendMsgFailure = function () {
 }
 
 var sendMsgComplete = function () {
+  $('#syncMail').html('');
   setTimeout(function () {
     $this.prop("disabled", false); // Re-enable submit button when AJAX call is complete
   }, 1000);
