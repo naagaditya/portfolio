@@ -93,6 +93,15 @@ self.addEventListener('sync', (event) => {
           "message": status
         });
       });
+    }).catch(err => {
+      const options = {
+        body: 'fail'
+      };
+      self.registration.showNotification('your mail', options);
+      messagePort.postMessage({
+        "message": status
+      });
+      console.log(err);
     });
   }
 });
