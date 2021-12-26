@@ -36,9 +36,9 @@ $('#name').focus(function () {
 
 
 // function initClient() {
-//   var API_KEY = 'AIzaSyBQz3cW5OUX3bVuB1Vci6L-Gn0vTOtPFqM'; 
+//   var API_KEY = 'API_KEY'; 
 
-//   var CLIENT_ID = '855395398771-37i8an4g3jldupv70smrh9t45oct0ul8.apps.googleusercontent.com'; 
+//   var CLIENT_ID = 'CLIENT_ID'; 
 
 //   var SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
 
